@@ -60,7 +60,7 @@ class ValueFunction(object):
         # keep track of model input
         self.inp = inp
 
-    def value(self, inp_vec):
+    def compute_val(self, inp_vec):
         return T.dot(inp_vec, self.W) + self.b;
 
     def error(self, y):

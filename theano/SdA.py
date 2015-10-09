@@ -137,6 +137,17 @@ class SdA(object):
         # calculate the squared error for the value function
         self.finetune_cost = self.valueLayer.error(self.y)
 
+    def compute_val(self, inp):
+        curr = numpy.copy(inp)
+        for level in sigmoid_layers:
+            curr = level.compute_val(curr)
+        curr = valueLayer.compute_val(curr)
+        return curr
+
+    def get_value_inp(self, inp):
+        temp = theano.shared(value=copy.deepcopy(inp), name='temp_inp', borrow=True)
+        return (compute_val(temp)).get_scalar_constant_value()
+
     def pretraining_functions(self, train_set_x, batch_size):
 
         # index to a [mini]batch
