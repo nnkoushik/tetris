@@ -72,7 +72,7 @@ class HiddenLayer(object):
             else activation(lin_output)
         )
 
-        def compute_val(self, curr):
-            return T.dot(curr, self.W) + self.b
+    def compute_val(self, curr):
+        return T.dot(curr, self.W) + self.b
 
 

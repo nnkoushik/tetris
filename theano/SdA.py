@@ -36,6 +36,7 @@ import timeit
 import copy
 import numpy
 import pickle
+import random
 import theano
 import theano.tensor as T
 from valuefunction import ValueFunction
@@ -67,7 +68,12 @@ class SdA(object):
             theano_rng = RandomStreams(numpy_rng.randint(2 ** 30))
         # allocate symbolic variables for the data
         self.x = T.matrix('x')  # the data is presented as rasterized images
-        self.y = T.dvector('y')  # the labels are presented as 1D vector of
+        self.y = theano.shared(value=numpy.zeros((1,),
+                dtype=theano.config.floatX
+            ),
+            name='y',
+            borrow=True
+        ) # the labels are presented as 1D vector of
                                 # [double] vector
         # end-snippet-1
 
@@ -127,7 +133,7 @@ class SdA(object):
         # end-snippet-2
         # We now need to add a value function computing
         self.valueLayer = ValueFunction(
-            inp=self.sigmoid_layers[-1].output,
+            input=self.sigmoid_layers[-1].output,
             n_in=hidden_layers_sizes[-1],
         )
 
@@ -135,13 +141,13 @@ class SdA(object):
         # construct a function that implements one step of finetunining
 
         # calculate the squared error for the value function
-        self.finetune_cost = self.valueLayer.error(self.y)
+        self.finetune_cost = self.valueLayer.cost(self.y)
 
     def compute_val(self, inp):
         curr = numpy.copy(inp)
-        for level in sigmoid_layers:
+        for level in self.sigmoid_layers:
             curr = level.compute_val(curr)
-        curr = valueLayer.compute_val(curr)
+        curr = self.valueLayer.compute_val(curr)
         return curr
 
     def get_value_inp(self, inp):
@@ -235,7 +241,7 @@ class SdA(object):
                     index * batch_size: (index + 1) * batch_size
                 ]
             },
-            name='train'
+            name='train',
         )
 #
 #        test_score_i = theano.function(
@@ -276,8 +282,8 @@ class SdA(object):
 #
         return train_fn, 0, 0
 
-def test_SdA(finetune_lr=0.1, pretraining_epochs=10,
-             pretrain_lr=0.001, training_epochs=10,
+def test_SdA(finetune_lr=0.1, pretraining_epochs=20,
+             pretrain_lr=0.001, training_epochs=10000,
              dataset='state.txt', valueset='value.txt', batch_size=1):
     """
     Demonstrates how to train and test a stochastic denoising autoencoder.
@@ -310,8 +316,9 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=10,
     valuefile = open(valueset, "r")
     val = eval(valuefile.read())
     temp2 = [val[str(st)] for st in arr2]
-    temp2 = [it[0] / it[1] for it in temp2]
-    train_set_y = theano.compile.sharedvalue.shared(numpy.array(temp2, dtype=theano.config.floatX))
+    temp2 = [float(it[0]) / it[1] for it in temp2]
+    temp3 = [0.0 for x in temp2]
+    train_set_y = theano.compile.sharedvalue.shared(numpy.array(temp3, dtype=theano.config.floatX))
     datasets = [train_set_x, train_set_y]
 
     # compute number of minibatches for training, validation and testing
@@ -426,8 +433,15 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=10,
 #            if patience <= iter:
 #                done_looping = True
 #                break
-    with(open('gen.pickle', 'wb') as f):
-        pickle.dump(sda, f, pickle.HIGHEST_PROTOCOL)
-    
+    f = open('gen.pickle', 'wb')
+    pickle.dump(sda, f, pickle.HIGHEST_PROTOCOL)
+    f.close()
+
+    vec = [random.randint(0, 1) for x in range(200)]
+    ans = sda.compute_val(arr[1]).eval()
+    print(sda.valueLayer.b.get_value())
+    print(sda.valueLayer.W.get_value())
+    print(ans)
+
 if __name__ == '__main__':
     test_SdA()

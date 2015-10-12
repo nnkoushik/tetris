@@ -20,7 +20,7 @@ import theano
 import theano.tensor as T
 
 class ValueFunction(object):
-    def __init__(self, inp, n_in, p = 2):
+    def __init__(self, input, n_in, p = 2):
         """ Initialize the parameters of the logistic regression
 
         :type input: theano.tensor.TensorType
@@ -37,16 +37,16 @@ class ValueFunction(object):
 
         # initialize with 0 the weights W as a matrix of shape (n_in, n_out)
         self.W = theano.shared(
-            value=numpy.zeros(
-                (n_in, 1),
-                dtype=theano.config.floatX
-            ),
+            value=numpy.random.rand(
+                n_in, 1).astype(
+                theano.config.floatX)
+            ,
             name='W',
             borrow=True
         )
         # initialize the biases b as a vector of n_out 0s
         self.b = theano.shared(
-            value=numpy.zeros(
+            value=numpy.ones(
                 (1,),
                 dtype=theano.config.floatX
             ),
@@ -58,10 +58,14 @@ class ValueFunction(object):
         self.params = [self.W, self.b]
 
         # keep track of model input
-        self.inp = inp
+        self.input = input
 
     def compute_val(self, inp_vec):
-        return T.dot(inp_vec, self.W) + self.b;
+        return T.dot(inp_vec, self.W) + self.b
 
-    def error(self, y):
-        return T.mean((T.dot(self.inp, self.W) + self.b - y) ** 2);
+    def cost(self, y):
+        #print(self.input.get_value().shape)
+        print(self.W.get_value().shape)
+        c = T.dot(self.input, self.W) + self.b - y
+        #print(c.get_value().shape)
+        return T.mean(abs(c))
