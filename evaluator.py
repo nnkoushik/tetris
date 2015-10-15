@@ -23,21 +23,21 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
         statesSeen = {}
         rewardSeen = []
 
-        gameBoard.setNewState(states[0])
-        statesSeen[str(states[0])] = 0
-        #if len(states) < noOfItems:
-            #gameBoard.setNewState(states[0])
-            #statesSeen[str(states[0])] = 0
-        #if len(states) > noOfItems:
-        #    for j in range(ind, len(states)):
-        #        temp = str(states[j])
-        #        tup = stRewards[temp]
-        #        if tup[1] < dataPoints:
-        #            ind = j
-        #            break
+        #gameBoard.setNewState(states[0])
+        #statesSeen[str(states[0])] = 0
+        if len(states) < noOfItems:
+            gameBoard.setNewState(states[0])
+            statesSeen[str(states[0])] = 0
+        if len(states) > noOfItems:
+            for j in range(ind, len(states)):
+                temp = str(states[j])
+                tup = stRewards[temp]
+                if tup[1] < dataPoints:
+                    ind = j
+                    break
 
-        #    gameBoard.setNewState(states[ind])
-        #    statesSeen[str(states[ind])] = 0
+            gameBoard.setNewState(states[ind])
+            statesSeen[str(states[ind])] = 0
 
         while True:
             piece = generate_piece()
