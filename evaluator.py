@@ -16,8 +16,8 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     #print(states[0])
     count = 0
     ind = 0
-    #while count < noOfItems:
-    while stRewards[str(states[0])][1] < noOfItems:
+    while count < noOfItems:
+    #while stRewards[str(states[0])][1] < noOfItems:
         #stInd = randint(0, len(states) - 1)
         agent.reset()
         statesSeen = {}
@@ -78,8 +78,8 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     #    print(str(val))
     #    print('\n')
     #print(len(states))
-    print(stRewards[str(states[0])])
-    print(sum([sum(x) for x in states[0]]))
+    #print(stRewards[str(states[0])])
+    #print(sum([sum(x) for x in states[0]]))
     with open(fileV, "w") as V:
         V.write(str(stRewards))
     with open(fileS, "w") as S:
