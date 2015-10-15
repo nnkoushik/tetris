@@ -16,25 +16,28 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     #print(states[0])
     count = 0
     ind = 0
-    while count < noOfItems:
+    #while count < noOfItems:
+    while stRewards[str(states[0])][1] < noOfItems:
         #stInd = randint(0, len(states) - 1)
         agent.reset()
         statesSeen = {}
         rewardSeen = []
 
-        if len(states) < noOfItems:
-            gameBoard.setNewState(states[0])
-            statesSeen[str(states[0])] = 0
-        if len(states) > noOfItems:
-            for j in range(ind, len(states)):
-                temp = str(states[j])
-                tup = stRewards[temp]
-                if tup[1] < dataPoints:
-                    ind = j
-                    break
+        gameBoard.setNewState(states[0])
+        statesSeen[str(states[0])] = 0
+        #if len(states) < noOfItems:
+            #gameBoard.setNewState(states[0])
+            #statesSeen[str(states[0])] = 0
+        #if len(states) > noOfItems:
+        #    for j in range(ind, len(states)):
+        #        temp = str(states[j])
+        #        tup = stRewards[temp]
+        #        if tup[1] < dataPoints:
+        #            ind = j
+        #            break
 
-            gameBoard.setNewState(states[ind])
-            statesSeen[str(states[ind])] = 0
+        #    gameBoard.setNewState(states[ind])
+        #    statesSeen[str(states[ind])] = 0
 
         while True:
             piece = generate_piece()
@@ -51,9 +54,10 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
                 states.append(gameBoard.getStateCopy())
             if strState not in statesSeen:
                 statesSeen[strState] = len(rewardSeen)
-
+        #print(sum(rewardSeen))
         for visitedSt, ind in statesSeen.items():
             rewardSum = list(accumulate(list(reversed(rewardSeen))))
+
             if visitedSt in stRewards:
 
                 tup = stRewards[visitedSt]
@@ -74,6 +78,8 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     #    print(str(val))
     #    print('\n')
     #print(len(states))
+    print(stRewards[str(states[0])])
+    print(sum([sum(x) for x in states[0]]))
     with open(fileV, "w") as V:
         V.write(str(stRewards))
     with open(fileS, "w") as S:

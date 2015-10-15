@@ -19,8 +19,8 @@ class TetrisGame(object):
         for height in range(0, self.Nrows):
             #print(height)
             if self.currState[height][column] == 1:
-                break
-        return height
+                return height
+        return self.Nrows
 
     def maxHeight(self):
         flag = 0
@@ -43,7 +43,7 @@ class TetrisGame(object):
     def clearRow(self, rowNo):
         if (self.fullRow(rowNo)):
             for j in range(0, self.Ncols):
-                for i in reversed(range(0, rowNo + 1)):
+                for i in reversed(range(1, rowNo + 1)):
                     self.currState[i][j] = self.currState[i - 1][j]
                 self.currState[0][j] = 0
 
