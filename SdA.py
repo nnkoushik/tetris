@@ -145,6 +145,22 @@ class SdA(object):
 
         self.error = self.valueLayer.cost(self.y)
 
+    def __getstate__(self):
+        state_list = []
+        for i in xrange(self.n_layers):
+            state_list.append(self.sigmoid_layers[i].__getstate__())
+        state_list.append(self.valueLayer.__setstate__())
+        return state_list    
+
+    def __setstate__(self, state_list):
+        self.params = []
+        for i in xrange(self.n_layers):
+            self.sigmoid_layers[i].__setstate__(state_list[i])
+            self.dA_layers[i].__setstate__(state_list[i])
+            self.params.extend(sigmoid_layers[i].params)
+        self.valueLayer.__setstate__(state_list[-1])
+        self.params.extend(self.valueLayer.params)  
+        
     def compute_val(self, inp):
         curr = numpy.copy(inp)
         for level in self.sigmoid_layers:

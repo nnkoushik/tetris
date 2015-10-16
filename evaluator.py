@@ -1,6 +1,16 @@
 from game import TetrisGame
 from random import randint
-from itertools import accumulate
+#from itertools import accumulate
+
+
+def accumulate(lis):
+    out = []
+    acc = 0
+    for x in lis:
+        acc = acc + x
+        out.append(acc)
+    return out
+
 
 def generate_piece():
     pieces = ["S", "Z"]
@@ -15,7 +25,7 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     gameBoard = TetrisGame(rows, cols)
     #print(states[0])
     count = 0
-    ind = 0
+    ind_st = 0
     while count < noOfItems:
     #while stRewards[str(states[0])][1] < noOfItems:
         #stInd = randint(0, len(states) - 1)
@@ -25,19 +35,20 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
 
         #gameBoard.setNewState(states[0])
         #statesSeen[str(states[0])] = 0
+        #print(ind)
         if len(states) < noOfItems:
             gameBoard.setNewState(states[0])
             statesSeen[str(states[0])] = 0
         if len(states) > noOfItems:
-            for j in range(ind, len(states)):
+            for j in range(ind_st, len(states)):
                 temp = str(states[j])
                 tup = stRewards[temp]
                 if tup[1] < dataPoints:
-                    ind = j
+                    ind_st = j
                     break
 
-            gameBoard.setNewState(states[ind])
-            statesSeen[str(states[ind])] = 0
+            gameBoard.setNewState(states[ind_st])
+            statesSeen[str(states[ind_st])] = 0
 
         while True:
             piece = generate_piece()
@@ -56,10 +67,10 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
                 statesSeen[strState] = len(rewardSeen)
         #print(sum(rewardSeen))
         for visitedSt, ind in statesSeen.items():
-            rewardSum = list(accumulate(list(reversed(rewardSeen))))
+            #rewardSum = list(accumulate(list(reversed(rewardSeen))))
+            rewardSum = accumulate(list(reversed(rewardSeen)))
 
             if visitedSt in stRewards:
-
                 tup = stRewards[visitedSt]
                 tup[1] = tup[1] + 1
                 if tup[1] == dataPoints:
@@ -78,7 +89,7 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     #    print(str(val))
     #    print('\n')
     #print(len(states))
-    #print(stRewards[str(states[0])])
+    print(stRewards[str(states[0])])
     #print(sum([sum(x) for x in states[0]]))
     with open(fileV, "w") as V:
         V.write(str(stRewards))

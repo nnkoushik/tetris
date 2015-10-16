@@ -184,6 +184,17 @@ class dA(object):
 
         self.params = [self.W, self.b, self.b_prime]
 
+    def __getstate__(self):
+        return self.params
+
+    def __setstate__(self, state):
+        self.W = state[0]
+        self.b = state[1]
+        self.b_prime = state[2]
+        self.W_prime = self.W.T
+        self.params = [self.W, self.b, self.b_prime]
+
+
     def get_corrupted_input(self, input, corruption_level):
         """This function keeps ``1-corruption_level`` entries of the inputs the
         same and zero-out randomly selected subset of size ``coruption_level``

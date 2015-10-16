@@ -63,6 +63,13 @@ class ValueFunction(object):
     def compute_val(self, inp_vec):
         return T.dot(inp_vec, self.W) + self.b
 
+    def __getstate__(self):
+        return self.params
+
+    def __setstate__(self, state):
+        self.W = state[0]
+        self.b = state[1]
+        self.params = [self.W, self.b]
 
     def cost(self, y):
         #c = T.dot(self.input, self.W) + self.b - y
