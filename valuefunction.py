@@ -63,9 +63,15 @@ class ValueFunction(object):
     def compute_val(self, inp_vec):
         return T.dot(inp_vec, self.W) + self.b
 
+
     def cost(self, y):
+        #c = T.dot(self.input, self.W) + self.b - y
+        #return T.mean(abs(c))
+        return T.mean((T.nnet.sigmoid(T.dot(self.input, self.W) + self.b - y)) ** 2)
+
+    def error(self, y):
         #print(self.input.get_value().shape)
-        print(self.W.get_value().shape)
+        #print(self.W.get_value().shape)
         c = T.dot(self.input, self.W) + self.b - y
         #print(c.get_value().shape)
         return T.mean(abs(c))
