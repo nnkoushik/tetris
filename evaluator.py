@@ -16,14 +16,45 @@ def generate_piece():
     pieces = ["S", "Z"]
     return pieces[randint(0,1)]
 
-def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
-
-    stRewards = {}
+def states_gen(agent, noOfItems, rows, cols):
     states = []
+    statesChk = {}
     states.append([[0 for col in range(cols)] for row in range(rows)])
-    stRewards[str(states[0])] = [0,0]
+    statesChk[str(states[0])] = True
     gameBoard = TetrisGame(rows, cols)
-    #print(states[0])
+    count = 0
+
+    while count < noOfItems:
+        agent.reset()
+        
+        gameBoard.setNewState(states[0])
+        while True:
+            piece = generate_piece()
+            loc = agent.getLocation(piece, gameBoard)
+            reward = gameBoard.addPiece(piece, loc[0], loc[1])
+            rewardSeen.append(reward)
+
+            if reward < 0:
+                break
+
+            strState = str(gameBoard.getState())
+            if strState not in statesChk:
+                states.append(gameBoard.getStateCopy())
+                statesChk[strState] = True
+                count = count + 1
+    return states
+
+def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, init_states):
+    stRewards = {}
+    states = init_states
+    for x in states:
+        stRewards[str(x)] = [0, 0]
+    if str([[0 for col in range(cols)] for row in range(rows)]) not in stRewards:
+        states.append([[0 for col in range(cols)] for row in range(rows)])
+        stRewards[str(states[0])] = [0,0]
+
+    gameBoard = TetrisGame(rows, cols)
+    
     count = 0
     ind_st = 0
     while count < noOfItems:
@@ -91,7 +122,9 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     #print(len(states))
     #print(stRewards[str(states[0])])
     #print(sum([sum(x) for x in states[0]]))
-    with open(fileV, "w") as V:
-        V.write(str(stRewards))
-    with open(fileS, "w") as S:
-        S.write(str(states))
+    #with open(fileV, "w") as V:
+    #    V.write(str(stRewards))
+    #with open(fileS, "w") as S:
+    #    S.write(str(states))
+    return [stRewards, states]
+    
