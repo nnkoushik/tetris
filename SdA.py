@@ -145,21 +145,21 @@ class SdA(object):
 
         self.error = self.valueLayer.cost(self.y)
 
-    def __getstate__(self):
-        state_list = []
-        for i in xrange(self.n_layers):
-            state_list.append(self.sigmoid_layers[i].__getstate__())
-        state_list.append(self.valueLayer.__setstate__())
-        return state_list    
-
-    def __setstate__(self, state_list):
-        self.params = []
-        for i in xrange(self.n_layers):
-            self.sigmoid_layers[i].__setstate__(state_list[i])
-            self.dA_layers[i].__setstate__(state_list[i])
-            self.params.extend(sigmoid_layers[i].params)
-        self.valueLayer.__setstate__(state_list[-1])
-        self.params.extend(self.valueLayer.params)  
+#    def __getstate__(self):
+#        state_list = []
+#        for i in xrange(self.n_layers):
+#            state_list.append(self.sigmoid_layers[i].__getstate__())
+#        state_list.append(self.valueLayer.__getstate__())
+#        return state_list    
+#
+#    def __setstate__(self, state_list):
+#        self.params = []
+#        for i in xrange(self.n_layers):
+#            self.sigmoid_layers[i].__setstate__(state_list[i])
+#            self.dA_layers[i].__setstate__(state_list[i])
+#            self.params.extend(sigmoid_layers[i].params)
+#        self.valueLayer.__setstate__(state_list[-1])
+#        self.params.extend(self.valueLayer.params)  
         
     def compute_val(self, inp):
         curr = numpy.copy(inp)
@@ -296,8 +296,8 @@ class SdA(object):
 #
         return train_fn, 0, 0
 
-def test_SdA(finetune_lr=0.1, pretraining_epochs=30,
-             pretrain_lr=0.001, training_epochs=10000,
+def test_SdA(finetune_lr=0.1, pretraining_epochs=15,
+             pretrain_lr=0.001, training_epochs=1000,
              dataset='state.txt', valueset='value.txt', batch_size=1):
     """
     Demonstrates how to train and test a stochastic denoising autoencoder.
@@ -408,13 +408,19 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=30,
    
     done_looping = False
     epoch = 0
+    prev = 10000000000
    
     while (epoch < training_epochs) and (not done_looping):
         epoch = epoch + 1
+        cur = 0
         for minibatch_index in xrange(n_train_batches):
             minibatch_avg_cost = train_fn(minibatch_index)
-            iter = (epoch - 1) * n_train_batches + minibatch_index
-   
+            cur = cur + minibatch_avg_cost
+        if((prev < cur) or (((prev - cur) / prev) < 0.01)):
+            done_looping = True
+        prev = cur
+#            iter = (epoch - 1) * n_train_batches + minibatch_index
+#   
 #            if (iter + 1) % validation_frequency == 0:
 #                validation_losses = validate_model()
 #                this_validation_loss = numpy.mean(validation_losses)
@@ -448,14 +454,8 @@ def test_SdA(finetune_lr=0.1, pretraining_epochs=30,
 #                done_looping = True
 #                break
     f = open('gen.pickle', 'wb')
-    pickle.dump(sda, f, pickle.HIGHEST_PROTOCOL)
+    pickle.dump(sda, f)
     f.close()
-
-    vec = [random.randint(0, 1) for x in range(200)]
-    ans = sda.compute_val(arr[1]).eval()
-    print(sda.valueLayer.b.get_value())
-    print(sda.valueLayer.W.get_value())
-    print(ans)
 
 if __name__ == '__main__':
     test_SdA()

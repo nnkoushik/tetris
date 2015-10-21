@@ -89,7 +89,7 @@ def monteCarloEval(agent, noOfItems, dataPoints, rows, cols, fileV, fileS):
     #    print(str(val))
     #    print('\n')
     #print(len(states))
-    print(stRewards[str(states[0])])
+    #print(stRewards[str(states[0])])
     #print(sum([sum(x) for x in states[0]]))
     with open(fileV, "w") as V:
         V.write(str(stRewards))

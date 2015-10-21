@@ -79,3 +79,7 @@ class HiddenLayer(object):
         self.W = state[0]
         self.b = state[1]
         self.params = [self.W, self.b]
+    
+    def compute_val(self, inp_vec):
+        v = T.dot(inp_vec, self.W) + self.b
+        return theano.tensor.nnet.sigmoid(v)
